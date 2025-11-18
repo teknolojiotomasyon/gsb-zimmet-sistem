@@ -8,11 +8,15 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body class="bg-light">
+
     <!-- ÜST MENÜ -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow-sm">
+        <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="/">Zimmet Sistemi</a>
-            <div class="collapse navbar-collapse">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link btn btn-outline-light me-2" href="/">Anasayfa</a></li>
                     <li class="nav-item"><a class="nav-link btn btn-outline-primary me-2" href="/personnel">Personel</a></li>
@@ -27,13 +31,20 @@
     </nav>
 
     <div class="container pt-5 mt-5">
-        <h2 class="my-4 text-center text-primary">Personel Listesi</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary">Personel Listesi</h2>
+            {% if is_manager %}
+            <a href="/add_personnel" class="btn btn-success">+ Personel Ekle</a>
+            {% endif %}
+        </div>
 
-        {% if is_manager %}<a href="/add_personnel" class="btn btn-success mb-3">+ Personel Ekle</a>{% endif %}
+        {% if is_guest %}
+        <div class="alert alert-info text-center">Misafir modundasınız – Sadece görüntüleme</div>
+        {% endif %}
 
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-primary">
                     <tr>
                         <th>Personel</th>
                         <th>Görev</th>
@@ -45,8 +56,9 @@
                     {% for p in personnels %}
                     <tr>
                         <td>
-                            <a href="/personnel_detail/{{ p.id }}" class="text-decoration-none">
-                                <span class="me-2">.:</span> <strong>{{ p.name }} {{ p.surname }}</strong>
+                            <a href="/personnel_detail/{{ p.id }}" class="text-decoration-none d-flex align-items-center">
+                                <span class="me-3 fs-4 text-primary">Kişi</span>
+                                <strong>{{ p.name }} {{ p.surname }}</strong>
                             </a>
                         </td>
                         <td>{{ p.duty or '-' }}</td>
@@ -54,7 +66,8 @@
                         {% if is_manager %}
                         <td>
                             <a href="/edit_personnel/{{ p.id }}" class="btn btn-warning btn-sm">Düzenle</a>
-                            <a href="/delete_personnel/{{ p.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Silinsin mi?')">Sil</a>
+                            <a href="/delete_personnel/{{ p.id }}" class="btn btn-danger btn-sm ms-2"
+                               onclick="return confirm('Silinsin mi?')">Sil</a>
                         </td>
                         {% endif %}
                     </tr>
@@ -64,7 +77,9 @@
         </div>
 
         <div class="text-center mt-5">
-            <button onclick="history.back()" class="btn btn-outline-secondary btn-lg px-5">Geri</button>
+            <button onclick="history.back()" class="btn btn-outline-secondary btn-lg px-5 rounded-pill shadow-sm">
+                Geri
+            </button>
         </div>
     </div>
 </body>
