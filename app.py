@@ -17,7 +17,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # Yönetici şifresi: 1461
-ADMIN_HASH = generate_password_hash('27080606')
+ADMIN_HASH = generate_password_hash('1461')
 
 # ==================== MODELLER ====================
 class Personnel(db.Model):
