@@ -23,24 +23,24 @@
             <div class="row g-4">
                 <div class="col-md-6">
                     <div class="card shadow-lg border-0 rounded-4 card-hover">
-                        <div class="card-body p-5">
+                        <div class="card-body p-5 text-center">
                             <i class="bi bi-eye display-1 text-info mb-4"></i>
                             <h3>Misafir Girişi</h3>
                             <p class="text-muted">Sadece görüntüleme</p>
                             <form method="post" action="/guest_login">
-                                <button type="submit" class="btn btn-info btn-lg w-100">Şifresiz Giriş</button>
+                                <button type="submit" class="btn btn-info btn-lg w-100">Şifresiz Giriş Yap</button>
                             </form>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="card shadow-lg border-0 rounded-4 card-hover">
-                        <div class="card-body p-5">
+                        <div class="card-body p-5 text-center">
                             <i class="bi bi-shield-lock display-1 text-primary mb-4"></i>
                             <h3>Yönetici Girişi</h3>
                             <p class="text-muted">Tam yetki</p>
                             <form method="post" action="/manager">
-                                <input type="password" name="password" class="form-control form-control-lg text-center mb-3" placeholder="Şifre" required>
+                                <input type="password" name="password" class="form-control form-control-lg text-center mb-3" placeholder="Şifre girin" required>
                                 <button type="submit" class="btn btn-primary btn-lg w-100">Giriş Yap</button>
                             </form>
                         </div>
@@ -50,7 +50,7 @@
             {% endif %}
 
             {% if session.is_manager or session.is_guest %}
-            <div class="row g-4">
+            <div class="row g-4 mt-5">
                 <div class="col-md-4">
                     <a href="/personnel" class="text-decoration-none">
                         <div class="card bg-white text-dark shadow card-hover p-5 text-center rounded-4">
