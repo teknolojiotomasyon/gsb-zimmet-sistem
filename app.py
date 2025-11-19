@@ -1,4 +1,4 @@
-# app.py - ZİMMET SİSTEMİ - %100 ÇALIŞAN SON HAL (18.11.2025)
+# app.py - ZİMMET SİSTEMİ - RAILWAY UYUMLU SON HAL (19.11.2025)
 from flask import Flask, render_template, request, redirect, url_for, flash, session, make_response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,16 +8,22 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from io import BytesIO
 import datetime
+import os   # <--- RAILWAY İÇİN ZORUNLU
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'guvenli_sifre_2025_degistir_bunu'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///zimmet.db'
+
+# RAILWAY POSTGRESQL UYUMLU VERİTABANI BAĞLANTISI
+# Railway DATABASE_URL verir → postgres:// ile başlar
+# SQLAlchemy postgresql:// ister → replace ile düzeltiyoruz
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '').replace('postgres://', 'postgresql://', 1) or 'sqlite:///zimmet.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Yönetici şifresi: 1461
-ADMIN_HASH = generate_password_hash('1461')
+# Yönetici şifresi: 27080606
+ADMIN_HASH = generate_password_hash('27080606')
 
 # ==================== MODELLER ====================
 class Personnel(db.Model):
@@ -40,12 +46,12 @@ class Equipment(db.Model):
 def login_required_manager(f):
     from functools import wraps
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def decorated(*args, **kwargs):
         if not session.get('is_manager'):
             flash('Bu işlem için yönetici girişi gereklidir.', 'danger')
             return redirect(url_for('index'))
         return f(*args, **kwargs)
-    return decorated_function
+    return decorated
 
 # ==================== ROUTES ====================
 @app.route('/')
@@ -112,27 +118,17 @@ def print_card(person_id):
         c.setFont('DejaVuSans', 12)
     except:
         c.setFont('Helvetica', 12)
-    c.setFillColorRGB(0, 0.3, 0.6)
-    c.rect(0, height-100, width, 100, fill=1)
-    c.setFillColorRGB(1,1,1)
-    c.drawCentredString(width/2, height-70, "ZİMMET FORMU")
+    c.setFillColorRGB(0, 0.3, 0.6); c.rect(0, height-100, width, 100, fill=1)
+    c.setFillColorRGB(1,1,1); c.drawCentredString(width/2, height-70, "ZİMMET FORMU")
     c.setFillColorRGB(0,0,0)
     y = height - 140
-    c.drawString(60, y, f"Personel: {person.name} {person.surname}")
-    y -= 25
-    c.drawString(60, y, f"Görev: {person.duty or '-'}")
-    y -= 25
-    c.drawString(60, y, f"Telefon: {person.phone or '-'}")
-    y -= 40
+    c.drawString(60, y, f"Personel: {person.name} {person.surname}"); y -= 30
+    c.drawString(60, y, f"Görev: {person.duty or '-'}"); y -= 30
+    c.drawString(60, y, f"Telefon: {person.phone or '-'}"); y -= 50
     for i, eq in enumerate(equipments, 1):
-        c.drawString(80, y, f"{i}. {eq.name} - {eq.serial}")
-        y -= 20
-        if y < 100:
-            c.showPage()
-            y = height - 100
+        c.drawString(60, y, f"{i}. {eq.name} - {eq.serial}"); y -= 25
     c.drawString(60, y-40, f"Tarih: {datetime.datetime.now().strftime('%d.%m.%Y')}")
-    c.save()
-    buffer.seek(0)
+    c.save(); buffer.seek(0)
     response = make_response(buffer.getvalue())
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = f'attachment; filename=zimmet_{person.name}_{person.surname}.pdf'
@@ -155,7 +151,7 @@ def equipment_detail(eq_id):
                          eq=eq,
                          owner=owner,
                          personnels=Personnel.query.all(),
-                         is_manager=True)  # DÜZENLEME İÇİN GEREKLİ
+                         is_manager=True)
 
 @app.route('/search', methods=['GET', 'POST'])
 @login_required_manager
@@ -193,8 +189,7 @@ def add_personnel():
                       duty=request.form['duty'],
                       phone=request.form['phone'],
                       description=request.form['description'])
-        db.session.add(p)
-        db.session.commit()
+        db.session.add(p); db.session.commit()
         flash('Personel eklendi.', 'success')
         return redirect(url_for('personnel_list'))
     return render_template('add_personnel.html')
@@ -219,8 +214,7 @@ def edit_personnel(id):
 def delete_personnel(id):
     p = Personnel.query.get_or_404(id)
     Equipment.query.filter_by(assigned_to=id).update({'assigned_to': None, 'in_depot': True})
-    db.session.delete(p)
-    db.session.commit()
+    db.session.delete(p); db.session.commit()
     flash('Personel silindi.', 'success')
     return redirect(url_for('personnel_list'))
 
@@ -232,8 +226,7 @@ def add_equipment():
         eq = Equipment(name=request.form['name'],
                        serial=request.form['serial'],
                        description=request.form['description'])
-        db.session.add(eq)
-        db.session.commit()
+        db.session.add(eq); db.session.commit()
         flash('Ekipman eklendi.', 'success')
         return redirect(url_for('equipment_list'))
     return render_template('add_equipment.html')
@@ -255,8 +248,7 @@ def edit_equipment(id):
 @login_required_manager
 def delete_equipment(id):
     eq = Equipment.query.get_or_404(id)
-    db.session.delete(eq)
-    db.session.commit()
+    db.session.delete(eq); db.session.commit()
     flash('Ekipman silindi.', 'success')
     return redirect(url_for('equipment_list'))
 
